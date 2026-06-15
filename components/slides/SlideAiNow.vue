@@ -100,12 +100,11 @@ const option = computed(() => {
     </div>
 
     <div class="grid grid-2e">
-      <div class="card" style="gap: 12px; overflow: auto">
+      <div class="card ai-card-wrap">
         <h3 class="card-title">Где и как применяли ИИ</h3>
         <div class="ai-cards">
           <div v-for="p in ai.projects" :key="p.project" class="ai-card">
             <div class="ai-card-head">
-              <i class="pi" :class="p.icon" />
               <span class="ai-card-proj">{{ p.project }}</span>
               <span class="ai-card-effect">{{ p.effect }}</span>
             </div>
@@ -129,21 +128,3 @@ const option = computed(() => {
     </div>
   </section>
 </template>
-
-<style scoped>
-.ai-cards { display: flex; flex-direction: column; gap: 12px; }
-.ai-card {
-  border: 1px solid #e7e8f2;
-  border-radius: 14px;
-  padding: 12px 14px;
-  transition: 0.18s;
-}
-.ai-card:hover { border-color: var(--brand); box-shadow: 0 6px 18px rgba(0, 0, 120, 0.08); transform: translateY(-2px); }
-.ai-card-head { display: flex; align-items: center; gap: 10px; }
-.ai-card-head .pi { color: var(--brand); font-size: 18px; }
-.ai-card-proj { font-weight: 800; font-size: 16px; }
-.ai-card-effect { margin-left: auto; color: var(--brand); font-weight: 700; font-size: 13px; text-align: right; }
-.ai-card-did { margin: 8px 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
-.ai-tools { display: flex; flex-wrap: wrap; gap: 6px; }
-.ai-tool { background: var(--brand-soft); color: var(--brand); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
-</style>
