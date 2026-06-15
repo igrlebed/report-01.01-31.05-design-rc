@@ -1,0 +1,23 @@
+{
+  "name": "tracker-report-slides",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview"
+  },
+  "dependencies": {
+    "@primevue/themes": "^4.3.3",
+    "echarts": "^5.5.1",
+    "nuxt": "^3.14.159",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.3.3",
+    "vue": "^3.5.13",
+    "vue-echarts": "^7.0.3"
+  },
+  "devDependencies": {
+    "@primevue/nuxt-module": "^4.3.3"
+  }
+}
