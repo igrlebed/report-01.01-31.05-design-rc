@@ -1,66 +1,37 @@
 <script setup lang="ts">
 const props = defineProps<{ data: any }>()
-const ai = computed(() => props.data.ai)
+const pipeline = computed(() => props.data.ai.pipeline)
 
-function splitTools(tools: string) {
-  return tools.split(/\s*[·→]\s*/).filter(Boolean)
+/** Figma: gap между блоком title и tools внутри нижнего frame */
+const pipeInnerGap = [24, 120, 216, 312]
+
+function formatPipeTitle(title: string) {
+  return title.replace(' / ', ' /<br>')
 }
 </script>
 
 <template>
-  <section class="slide">
-    <div class="slide-head">
-      <div>
-        <div class="slide-kicker">Слайд 5 / 5</div>
-        <h1 class="slide-title">Нейросети: что будем делать</h1>
-      </div>
-      <div class="slide-sub">От прототипа-картинки к фундаменту продукта</div>
-    </div>
+  <section class="slide slide-nx">
+    <header class="nx-head">
+      <h1 class="nx-title">Нейросети: как это работает</h1>
+    </header>
 
-    <div class="next-grid">
-      <!-- Конвейер: вертикальная колонка слева, высокая и заметная -->
-      <div class="card pipe-card">
-        <h3 class="card-title">ИИ-конвейер уже закрывает всю цепочку</h3>
-        <div class="pipeline ai-cards">
-          <template v-for="(p, i) in ai.pipeline" :key="p.step">
-            <div class="pipe-step ai-card">
-              <div class="ai-card-head">
-                <span class="ai-card-proj">{{ p.step }}</span>
-              </div>
-              <p v-if="p.desc" class="ai-card-did">{{ p.desc }}</p>
-              <div class="ai-tools" style="margin-top: 10px">
-                <span v-for="t in splitTools(p.tools)" :key="t" class="ai-tool">{{ t }}</span>
-              </div>
-            </div>
-            <i v-if="i < ai.pipeline.length - 1" class="pi pi-arrow-down pipe-arrow" />
-          </template>
-        </div>
-      </div>
+    <div class="nx-content">
+      <h2 class="nx-lead">ИИ-конвейер частично закрывает всю цепочку</h2>
 
-      <!-- Правая колонка: эволюция (сверху) + дорожная карта (снизу) -->
-      <div class="next-right">
-        <div class="card evo-card">
-          <h3 class="card-title">Эволюция роли прототипа</h3>
-          <div class="evo-row">
-            <div class="evo-box evo-now ai-card">
-              <div class="evo-tag">Сейчас</div>
-              <p>{{ ai.evolution.now }}</p>
+      <div class="nx-pipe">
+        <div
+          v-for="(step, i) in pipeline"
+          :key="step.step"
+          class="nx-pipe-card"
+        >
+          <span class="nx-pipe-num">{{ String(i + 1).padStart(2, '0') }}</span>
+          <div class="nx-pipe-inner" :style="{ gap: `${pipeInnerGap[i]}px` }">
+            <div class="nx-pipe-main">
+              <div class="nx-pipe-bar" />
+              <h3 class="nx-pipe-title" v-html="formatPipeTitle(step.step)" />
             </div>
-            <i class="pi pi-arrow-right evo-arrow" />
-            <div class="evo-box evo-target ai-card">
-              <div class="evo-tag">Цель</div>
-              <p>{{ ai.evolution.target }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card road-card">
-          <h3 class="card-title">Дорожная карта</h3>
-          <div class="roadmap ai-cards">
-            <div v-for="(step, i) in ai.roadmap" :key="i" class="road-step ai-card">
-              <span class="road-num">{{ i + 1 }}</span>
-              <div class="road-text">{{ step }}</div>
-            </div>
+            <p class="nx-pipe-tools">{{ step.tools }}</p>
           </div>
         </div>
       </div>
@@ -69,69 +40,132 @@ function splitTools(tools: string) {
 </template>
 
 <style scoped>
-.next-grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 0.92fr 1.08fr;
-  gap: 22px;
-  min-height: 0;
-}
-.next-right {
-  display: grid;
-  grid-template-rows: 0.85fr 1fr;
-  gap: 22px;
-  min-height: 0;
-}
+.slide-nx {
+  --nx-text: #404040;
+  --nx-muted: #737373;
+  --nx-card: #fafafa;
+  --nx-card-border: #f2f2f2;
+  --nx-bar: rgba(0, 0, 187, 0.2);
+  --nx-card-shadow:
+    53px 54px 21px 0 rgba(237, 237, 237, 0),
+    34px 34px 19px 0 rgba(237, 237, 237, 0.01),
+    19px 19px 16px 0 rgba(237, 237, 237, 0.05),
+    8px 9px 12px 0 rgba(237, 237, 237, 0.09),
+    2px 2px 7px 0 rgba(237, 237, 237, 0.1);
 
-.pipe-card { min-height: 0; gap: 12px; }
-.pipeline { justify-content: space-between; }
-.pipe-step { margin: 0; padding: 18px 20px; border-radius: 16px; }
-.pipe-arrow { color: var(--brand); align-self: center; font-size: 18px; opacity: 0.55; }
-
-.evo-card { min-height: 0; gap: 12px; }
-.evo-row { display: flex; align-items: stretch; gap: 16px; flex: 1; min-height: 0; }
-.evo-box {
-  flex: 1;
-  padding: 22px;
-  border-radius: 16px;
-}
-.evo-box p { margin: 10px 0 0; font-size: 16px; line-height: 1.5; font-weight: 500; color: var(--muted); }
-.evo-tag { font-size: 12px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
-.evo-now { background: #f6f7fa; border: 1px dashed #d4d5e0; }
-.evo-now .evo-tag { color: var(--muted); }
-.evo-target .evo-tag { color: var(--brand); }
-.evo-target p { color: var(--ink); }
-.evo-arrow { color: var(--brand); align-self: center; font-size: 24px; opacity: 0.7; }
-
-.road-card { min-height: 0; display: flex; flex-direction: column; gap: 12px; }
-.roadmap { gap: 14px; }
-.road-step {
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
+  padding: 24px !important;
   gap: 16px;
-  padding: 20px 22px;
-  border-radius: 14px;
+  font-family: 'Onest', -apple-system, BlinkMacSystemFont, sans-serif;
 }
-.road-num {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border-radius: 10px;
-  flex: none;
-  display: inline-flex;
+
+.nx-head {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 14px;
-  background: var(--brand-soft);
-  color: var(--brand);
+  padding: 12px 24px;
 }
-.road-text {
+.nx-title {
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 20px;
+  color: var(--nx-muted);
+  margin: 0;
+}
+
+.nx-content {
   flex: 1;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ink);
-  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  min-height: 0;
+  width: 100%;
+}
+
+.nx-lead {
+  margin: 0;
+  padding: 0 24px;
+  max-width: 900px;
+  font-family: 'Tektur', sans-serif;
+  font-weight: 500;
+  font-size: 56px;
+  line-height: 56px;
+  letter-spacing: -1.12px;
+  color: #02028a;
+}
+
+.nx-pipe {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  min-height: 0;
+  width: 100%;
+}
+
+.nx-pipe-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  min-width: 0;
+  min-height: 0;
+  padding: 24px;
+  background: var(--nx-card);
+  border: 1px solid var(--nx-card-border);
+  border-radius: 36px;
+  box-shadow: var(--nx-card-shadow);
+  overflow: hidden;
+}
+
+.nx-pipe-num {
+  flex-shrink: 0;
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 14px;
+  color: var(--nx-muted);
+}
+
+.nx-pipe-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.nx-pipe-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.nx-pipe-bar {
+  height: 8px;
+  width: 100%;
+  background: var(--nx-bar);
+  border-radius: 999px;
+}
+
+.nx-pipe-title {
+  margin: 0;
+  font-family: 'Tektur', sans-serif;
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 36px;
+  letter-spacing: -0.64px;
+  color: var(--nx-text);
+}
+
+.nx-pipe-tools {
+  margin: 0;
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 14px;
+  color: var(--nx-muted);
+  white-space: nowrap;
 }
 </style>

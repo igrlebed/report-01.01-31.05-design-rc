@@ -1,19 +1,10 @@
 <script setup lang="ts">
-import SelectButton from 'primevue/selectbutton'
-import { BRAND, OK, BAD, MUTED, baseTooltip, baseTextStyle } from '~/composables/useBrand'
+import { BRAND, OK, BAD, CHART_MUTED, baseTooltip, baseTextStyle, chartValueAxis, chartCategoryAxis, chartBarLabel, BAR_R, ttHint } from '~/composables/useBrand'
 
 const props = defineProps<{ data: any }>()
 
-const mode = ref<'after' | 'before'>('after')
-const modeOptions = [
-  { label: 'После корректировок', value: 'after' },
-  { label: 'Как в трекере', value: 'before' }
-]
-
-const rows = computed(() => props.data.deadlines[mode.value])
-const total = computed(() =>
-  mode.value === 'after' ? props.data.deadlines.totalAfter : props.data.deadlines.totalBefore
-)
+const rows = computed(() => props.data.deadlines.after)
+const total = computed(() => props.data.deadlines.totalAfter)
 
 function barColor(pct: number) {
   if (pct >= 90) return OK
@@ -31,72 +22,209 @@ const option = computed(() => {
       axisPointer: { type: 'shadow' },
       formatter: (p: any[]) => {
         const r = sorted[p[0].dataIndex]
-        return `<b>${r.project}</b><br/>в срок <b>${r.pct}%</b><br/><span style="opacity:.7">${r.onTime} в срок · ${r.late} просрочено</span>`
+        return `${r.project}<br/>в срок ${r.pct}%<br/>${ttHint(`${r.onTime} в срок · ${r.late} просрочено`)}`
       }
     },
     grid: { left: 8, right: 48, top: 10, bottom: 10, containLabel: true },
-    xAxis: { type: 'value', max: 100, splitLine: { lineStyle: { color: '#eef0f7' } }, axisLabel: { color: MUTED, formatter: '{value}%' } },
+    xAxis: { type: 'value', max: 100, ...chartValueAxis, axisLabel: { ...chartValueAxis.axisLabel, formatter: '{value}%' } },
     yAxis: {
       type: 'category',
       data: sorted.map((r) => r.project),
-      axisLabel: { color: MUTED, fontWeight: 600 },
-      axisLine: { lineStyle: { color: '#e0e1ee' } }
+      ...chartCategoryAxis
     },
     series: [
       {
         type: 'bar',
-        data: sorted.map((r) => ({ value: r.pct, itemStyle: { color: barColor(r.pct), borderRadius: [0, 8, 8, 0] } })),
+        data: sorted.map((r) => ({ value: r.pct, itemStyle: { color: barColor(r.pct), borderRadius: BAR_R.horizEnd } })),
         barWidth: '56%',
-        label: { show: true, position: 'right', formatter: '{c}%', color: MUTED, fontWeight: 700 }
+        label: { show: true, position: 'right', formatter: '{c}%', color: CHART_MUTED, ...chartBarLabel }
       }
     ]
   }
 })
+
+const asmip = computed(() => rows.value.find((r: any) => r.project === 'АС МИП')?.pct)
 </script>
 
 <template>
-  <section class="slide">
-    <div class="slide-head">
-      <div>
-        <div class="slide-kicker">Слайд 2 / 5</div>
-        <h1 class="slide-title">Дедлайны — главный и честный показатель</h1>
-      </div>
-      <div class="slide-sub">% задач, закрытых в срок</div>
-    </div>
+  <section class="slide slide-dl">
+    <header class="dl-head">
+      <h1 class="dl-title">Дедлайны — главный показатель</h1>
+    </header>
 
-    <div class="grid grid-2">
-      <div class="card">
-        <div class="toggle-row">
-          <SelectButton v-model="mode" :options="modeOptions" option-label="label" option-value="value" :allow-empty="false" />
-          <span class="slide-sub" style="margin-left: auto">
-            Итого: <b :style="{ color: total.pct >= 80 ? 'var(--ok)' : 'var(--brand)', fontSize: '20px' }">{{ total.pct }}%</b>
-            <span style="color: var(--muted)"> ({{ total.onTime }} / {{ total.onTime + total.late }})</span>
-          </span>
+    <div class="dl-content">
+      <div class="dl-dashboard">
+        <div class="dl-card dl-chart-card">
+          <div class="dl-headline">
+            <p class="dl-headline-lbl">Процент задач, закрытых в срок</p>
+            <div class="dl-metric">
+              <span class="dl-metric-val">{{ total.pct.toLocaleString('ru-RU') }}%</span>
+              <span class="dl-metric-sub">({{ total.onTime }} / {{ total.onTime + total.late }})</span>
+            </div>
+          </div>
+          <EChart :option="option" />
         </div>
-        <EChart :option="option" />
-      </div>
 
-      <div class="notes-col">
-        <div class="note-block">
-          <h3 class="note-title">Переключатель «как в трекере → после корректировок»</h3>
-          <p class="note-text">
-            Показывает рост {{ data.deadlines.totalBefore.pct }}% → {{ data.deadlines.totalAfter.pct }}%.
-            Часть «просрочек» — это переносы сроков по низкоприоритетным задачам бэклога, которые забыли отметить в трекере.
-          </p>
-        </div>
-        <div class="note-block">
-          <h3 class="note-title">АС МИП ({{ rows.find((r:any)=>r.project==='АС МИП')?.pct }}%)</h3>
-          <p class="note-text">
-            «Хотелки заказчика»: переделки и сроки вне контроля команды. Эту метрику оцениваем отдельно, не в общем ряду.
-          </p>
-        </div>
-        <div class="note-block">
-          <h3 class="note-title">Оценки vs факт не используем как метрику</h3>
-          <p class="note-text">
-            На закрытии бэклога ЕИМ большой объём перекрывали внутри одной задачи (напр. EIMNEW-1727: оценка 86 ч → факт 201 ч) — это особенность учёта, а не ошибка планирования.
-          </p>
+        <div class="dl-notes">
+          <div class="dl-card dl-note">
+            <h3 class="dl-note-title">Откуда просрочки?</h3>
+            <p class="dl-note-text">
+              Часть «просрочек» — это переносы сроков по низкоприоритетным задачам бэклога, у которых не было переноса дедлайна в трекере.
+            </p>
+          </div>
+          <div class="dl-card dl-note">
+            <h3 class="dl-note-title">АС МИП ({{ asmip }}%)</h3>
+            <p class="dl-note-text">
+              «Хотелки заказчика»: переделки и сроки вне контроля команды. Эту метрику оцениваем отдельно, не в общем ряду.
+            </p>
+          </div>
+          <div class="dl-card dl-note">
+            <h3 class="dl-note-title">Оценки vs факт не используем как метрику</h3>
+            <p class="dl-note-text">
+              На закрытии бэклога ЕИМ большой объём перекрывали внутри одной задачи (напр. EIMNEW-1727: оценка 86 ч → факт 201 ч) — это особенность учёта, а не ошибка планирования.
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+.slide-dl {
+  --ov-text: #404040;
+  --ov-num: #02028a;
+  --ov-card: #fafafa;
+  --ov-card-border: #f2f2f2;
+  --ov-card-shadow:
+    53px 54px 21px 0 rgba(237, 237, 237, 0),
+    34px 34px 19px 0 rgba(237, 237, 237, 0.01),
+    19px 19px 16px 0 rgba(237, 237, 237, 0.05),
+    8px 9px 12px 0 rgba(237, 237, 237, 0.09),
+    2px 2px 7px 0 rgba(237, 237, 237, 0.1);
+
+  padding: 24px;
+  gap: 16px;
+  font-family: 'Onest', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.dl-head {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+}
+.dl-title {
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 20px;
+  color: #737373;
+  margin: 0;
+}
+
+.dl-content {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  width: 100%;
+}
+.dl-dashboard {
+  flex: 1;
+  display: flex;
+  gap: 24px;
+  min-height: 0;
+  width: 100%;
+}
+
+.dl-card {
+  background: var(--ov-card);
+  border: 1px solid var(--ov-card-border);
+  border-radius: 42px;
+  box-shadow: var(--ov-card-shadow);
+  overflow: hidden;
+}
+
+.dl-chart-card {
+  flex: 1.25;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 28px 24px;
+}
+.dl-headline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 8px;
+}
+.dl-headline-lbl {
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 16px;
+  color: var(--ov-text);
+  margin: 0;
+}
+.dl-metric {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.dl-metric-val {
+  font-family: 'Tektur', sans-serif;
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 28px;
+  letter-spacing: -0.4px;
+  color: var(--ov-num);
+  font-variant-numeric: tabular-nums;
+}
+.dl-metric-sub {
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: #a3a3a3;
+}
+.dl-chart-card :deep(.chart) {
+  flex: 1;
+  min-height: 0;
+}
+
+.dl-notes {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 0;
+  min-width: 0;
+}
+.dl-note {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  min-height: 0;
+  padding: 28px 24px;
+  border-radius: 42px;
+}
+.dl-note-title {
+  font-family: 'Tektur', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 28px;
+  color: #02028A;
+  margin: 0;
+}
+.dl-note-text {
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  color: #737373;
+  margin: 0;
+}
+</style>

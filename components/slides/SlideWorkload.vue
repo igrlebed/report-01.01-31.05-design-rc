@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BRAND, BRAND_SOFT, MUTED, OK, baseTooltip, baseTextStyle } from '~/composables/useBrand'
+import { BRAND, BRAND_SOFT, CHART_MUTED, baseTooltip, baseTextStyle, chartLegend, chartValueAxis, chartCategoryAxis, chartBarLabel, BAR_R, ttHint, ttDivider } from '~/composables/useBrand'
 
 const props = defineProps<{ data: any }>()
 
@@ -16,19 +16,18 @@ const option = computed(() => ({
     formatter: (p: any) => {
       const w = workload.value[p.dataIndex]
       const parts = w.byProject
-        .map((b: any) => `${b.project}: <b>${b.hours}</b> ч`)
+        .map((b: any) => `${b.project}: ${b.hours} ч`)
         .join('<br/>')
-      return `<b>${w.full}</b> — всего ${w.total} ч<br/><span style="opacity:.6">${p.seriesName}: ${p.value} ч</span><br/><hr style="opacity:.2;margin:6px 0"/>${parts}`
+      return `${w.full} — всего ${w.total} ч<br/>${ttHint(`${p.seriesName}: ${p.value} ч`)}${ttDivider()}${parts}`
     }
   },
-  legend: { bottom: 0, icon: 'circle', textStyle: { color: MUTED } },
+  legend: chartLegend,
   grid: { left: 8, right: 40, top: 12, bottom: 38, containLabel: true },
-  xAxis: { type: 'value', splitLine: { lineStyle: { color: '#eef0f7' } }, axisLabel: { color: MUTED, formatter: '{value} ч' } },
+  xAxis: { type: 'value', ...chartValueAxis, axisLabel: { ...chartValueAxis.axisLabel, formatter: '{value} ч' } },
   yAxis: {
     type: 'category',
     data: workload.value.map((w) => w.name),
-    axisLabel: { color: MUTED, fontWeight: 600 },
-    axisLine: { lineStyle: { color: '#e0e1ee' } }
+    ...chartCategoryAxis
   },
   series: [
     {
@@ -36,7 +35,7 @@ const option = computed(() => ({
       type: 'bar',
       stack: 'h',
       data: workload.value.map((w) => w.janFeb),
-      itemStyle: { color: BRAND_SOFT, borderRadius: [6, 0, 0, 6] },
+      itemStyle: { color: BRAND_SOFT, borderRadius: BAR_R.horizStackStart },
       animationDuration: SEGMENT_DUR,
       animationEasing: 'cubicOut',
       animationDelay: (idx: number) => idx * ROW_STAGGER,
@@ -47,7 +46,7 @@ const option = computed(() => ({
       type: 'bar',
       stack: 'h',
       data: workload.value.map((w) => w.marMay),
-      itemStyle: { color: BRAND, borderRadius: [0, 6, 6, 0] },
+      itemStyle: { color: BRAND, borderRadius: BAR_R.horizStackEnd },
       animationDuration: SEGMENT_DUR,
       animationEasing: 'cubicOut',
       animationDelay: (idx: number) => SEGMENT_DUR + idx * ROW_STAGGER,
@@ -55,8 +54,8 @@ const option = computed(() => ({
         show: true,
         position: 'right',
         formatter: (p: any) => `${workload.value[p.dataIndex].total} ч`,
-        color: MUTED,
-        fontWeight: 700
+        color: CHART_MUTED,
+        ...chartBarLabel
       },
       emphasis: { focus: 'series' }
     }
@@ -65,54 +64,163 @@ const option = computed(() => ({
 </script>
 
 <template>
-  <section class="slide">
-    <div class="slide-head">
-      <div>
-        <div class="slide-kicker">Слайд 3 / 5</div>
-        <h1 class="slide-title">Нагрузка команды и нюанс учёта времени</h1>
-      </div>
-      <div class="slide-sub">Гибрид: трекер (янв–фев) + ручная таблица (март–май)</div>
-    </div>
+  <section class="slide slide-wl">
+    <header class="wl-head">
+      <h1 class="wl-title">Нагрузка команды</h1>
+    </header>
 
-    <div class="grid grid-2">
-      <div class="card">
-        <h3 class="card-title">Нагрузка по людям за период · hover → разбивка по проектам</h3>
-        <EChart :option="option" />
-      </div>
-
-      <div class="notes-col">
-        <div class="note-block">
-          <h3 class="note-title">Почему нагрузку считаем по таблице, а не по трекеру</h3>
-          <p class="note-text">
-            Поле «Затрачено времени» в выгрузке суммирует списания всех участников задачи на одного исполнителя — по выгрузке нельзя понять, кто сколько сделал.
-          </p>
+    <div class="wl-content">
+      <div class="wl-dashboard">
+        <div class="wl-card wl-chart-card">
+          <p class="wl-chart-lbl">Нагрузка по людям за период {{ data.period }}</p>
+          <EChart :option="option" />
         </div>
 
-        <div class="note-block note-block--start">
-          <h3 class="note-title">Доказательство: сумма по людям = «Затрачено» в трекере</h3>
-          <table class="proof-table">
-            <thead>
-              <tr><th>Задача</th><th>Списания по людям</th><th>Трекер</th></tr>
-            </thead>
-            <tbody>
-              <tr v-for="row in data.proof" :key="row.key">
-                <td><b>{{ row.key }}</b></td>
-                <td class="proof-eq">{{ row.parts.map((p:any[]) => p[1]).join(' + ') }} = <b>{{ row.tracker }}</b></td>
-                <td class="tag-ok">{{ row.tracker }} ч ✓</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <div class="wl-notes">
+          <div class="wl-card wl-note">
+            <h3 class="wl-note-title">Почему нагрузку считаем по таблице, а не по трекеру</h3>
+            <p class="wl-note-text">
+              Поле «Затрачено времени» в выгрузке суммирует списания всех участников задачи на одного исполнителя — по выгрузке нельзя понять, кто сколько сделал.
+            </p>
+          </div>
 
-        <div class="note-block">
-          <h3 class="note-title">Интерпретация нагрузки</h3>
-          <p class="note-text">
-            Сводка гибридная (трекер + таблица) — цифры оценочные, не строго сопоставимы между месяцами.
-            У руководителя ~236 ч «Адм/созвоны» — управленческая нагрузка, её выделяем отдельно от проектной.
-            Шаронова и Гузаирова — почти целиком ЕИМ; Тельбизова — ЕИМ + АС МИП; Кузнецова — Сайт РУТ КОД.
-          </p>
+          <div class="wl-card wl-note wl-note--start">
+            <h3 class="wl-note-title">Доказательство: сумма по людям = «Затрачено» в трекере</h3>
+            <table class="proof-table">
+              <thead>
+                <tr><th>Задача</th><th>Списания по людям</th><th>Трекер</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in data.proof" :key="row.key">
+                  <td>{{ row.key }}</td>
+                  <td class="proof-eq">{{ row.parts.map((p:any[]) => p[1]).join(' + ') }} = <span class="proof-sum">{{ row.tracker }}</span></td>
+                  <td class="tag-ok">{{ row.tracker }} ч ✓</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="wl-card wl-note">
+            <h3 class="wl-note-title">Интерпретация нагрузки</h3>
+            <p class="wl-note-text">
+              Сводка гибридная (трекер + таблица) — цифры оценочные, не строго сопоставимы между месяцами.
+              У руководителя ~236 ч «Адм/созвоны» — управленческая нагрузка, её выделяем отдельно от проектной.
+              Шаронова и Гузаирова — почти целиком ЕИМ; Тельбизова — ЕИМ + АС МИП; Кузнецова — Сайт РУТ КОД.
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+.slide-wl {
+  --ov-text: #404040;
+  --ov-card: #fafafa;
+  --ov-card-border: #f2f2f2;
+  --ov-card-shadow:
+    53px 54px 21px 0 rgba(237, 237, 237, 0),
+    34px 34px 19px 0 rgba(237, 237, 237, 0.01),
+    19px 19px 16px 0 rgba(237, 237, 237, 0.05),
+    8px 9px 12px 0 rgba(237, 237, 237, 0.09),
+    2px 2px 7px 0 rgba(237, 237, 237, 0.1);
+
+  padding: 24px;
+  gap: 16px;
+  font-family: 'Onest', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.wl-head {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+}
+.wl-title {
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 20px;
+  color: #737373;
+  margin: 0;
+}
+
+.wl-content {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  width: 100%;
+}
+.wl-dashboard {
+  flex: 1;
+  display: flex;
+  gap: 24px;
+  min-height: 0;
+  width: 100%;
+}
+
+.wl-card {
+  background: var(--ov-card);
+  border: 1px solid var(--ov-card-border);
+  border-radius: 42px;
+  box-shadow: var(--ov-card-shadow);
+  overflow: hidden;
+}
+
+.wl-chart-card {
+  flex: 1.25;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 28px 24px;
+}
+.wl-chart-lbl {
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 16px;
+  color: var(--ov-text);
+  margin: 0 0 8px;
+}
+.wl-chart-card :deep(.chart) {
+  flex: 1;
+  min-height: 0;
+}
+
+.wl-notes {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-height: 0;
+  min-width: 0;
+}
+.wl-note {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  min-height: 0;
+  padding: 28px 24px;
+  border-radius: 42px;
+}
+.wl-note--start { justify-content: flex-start; }
+.wl-note-title {
+  font-family: 'Tektur', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 28px;
+  color: #02028A;
+  margin: 0;
+}
+.wl-note-text {
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  color: #737373;
+  margin: 0;
+}
+</style>

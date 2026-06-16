@@ -4,7 +4,7 @@
 import slides from '~/mocks/slides.json'
 
 const current = ref(0)
-const totalSlides = 5
+const totalSlides = 6
 
 function go(i: number) {
   current.value = Math.max(0, Math.min(totalSlides - 1, i))
@@ -22,21 +22,35 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <SlidesSlideOverview v-if="current === 0" :data="slides" />
     <SlidesSlideDeadlines v-else-if="current === 1" :data="slides" />
     <SlidesSlideWorkload v-else-if="current === 2" :data="slides" />
-    <SlidesSlideAiNow v-else-if="current === 3" :data="slides" />
-    <SlidesSlideAiNext v-else :data="slides" />
+    <SlidesSlideAiNext v-else-if="current === 3" :data="slides" />
+    <SlidesSlideAiNow v-else-if="current === 4" :data="slides" />
+    <SlidesSlideAiPlan v-else :data="slides" />
 
     <footer class="deck-footer">
       <img src="/img/logo.svg" alt="logo" />
-      <div class="dots">
-        <span
-          v-for="i in totalSlides"
-          :key="i"
-          class="dot"
-          :class="{ active: current === i - 1 }"
-          @click="go(i - 1)"
-        />
+      <div class="nav-grp">
+        <button
+          class="nav-btn"
+          :disabled="current === 0"
+          aria-label="Назад"
+          @click="go(current - 1)"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        <span class="nav-counter">{{ current + 1 }}/{{ totalSlides }}</span>
+        <button
+          class="nav-btn nav-btn--next"
+          :disabled="current === totalSlides - 1"
+          aria-label="Вперёд"
+          @click="go(current + 1)"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
       </div>
-      <div class="nav-hint">← / → для навигации</div>
     </footer>
   </div>
 </template>
