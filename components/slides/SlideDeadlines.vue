@@ -1,43 +1,45 @@
 <script setup lang="ts">
-import { BRAND, OK, BAD, CHART_MUTED, baseTooltip, baseTextStyle, chartValueAxis, chartCategoryAxis, chartBarLabel, BAR_R, ttHint } from '~/composables/useBrand'
+import { useChartTheme, BAR_R } from '~/composables/useBrand'
 
 const props = defineProps<{ data: any }>()
+const theme = useChartTheme()
 
 const rows = computed(() => props.data.deadlines.after)
 const total = computed(() => props.data.deadlines.totalAfter)
 
-function barColor(pct: number) {
-  if (pct >= 90) return OK
-  if (pct >= 70) return BRAND
-  return BAD
+function barColor(pct: number, colors: { ok: string; brand: string; bad: string }) {
+  if (pct >= 90) return colors.ok
+  if (pct >= 70) return colors.brand
+  return colors.bad
 }
 
 const option = computed(() => {
+  const t = theme.value
   const sorted = [...rows.value].sort((a, b) => a.pct - b.pct)
   return {
-    textStyle: baseTextStyle,
+    textStyle: t.textStyle,
     tooltip: {
-      ...baseTooltip,
+      ...t.tooltip,
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       formatter: (p: any[]) => {
         const r = sorted[p[0].dataIndex]
-        return `${r.project}<br/>в срок ${r.pct}%<br/>${ttHint(`${r.onTime} в срок · ${r.late} просрочено`)}`
+        return `${r.project}<br/>в срок ${r.pct}%<br/>${t.ttHint(`${r.onTime} в срок · ${r.late} просрочено`)}`
       }
     },
     grid: { left: 8, right: 48, top: 10, bottom: 10, containLabel: true },
-    xAxis: { type: 'value', max: 100, ...chartValueAxis, axisLabel: { ...chartValueAxis.axisLabel, formatter: '{value}%' } },
+    xAxis: { type: 'value', max: 100, ...t.valueAxis, axisLabel: { ...t.valueAxis.axisLabel, formatter: '{value}%' } },
     yAxis: {
       type: 'category',
       data: sorted.map((r) => r.project),
-      ...chartCategoryAxis
+      ...t.categoryAxis
     },
     series: [
       {
         type: 'bar',
-        data: sorted.map((r) => ({ value: r.pct, itemStyle: { color: barColor(r.pct), borderRadius: BAR_R.horizEnd } })),
+        data: sorted.map((r) => ({ value: r.pct, itemStyle: { color: barColor(r.pct, t), borderRadius: BAR_R.horizEnd } })),
         barWidth: '56%',
-        label: { show: true, position: 'right', formatter: '{c}%', color: CHART_MUTED, ...chartBarLabel }
+        label: { show: true, position: 'right', formatter: '{c}%', color: t.chartMuted, ...t.barLabel }
       }
     ]
   }

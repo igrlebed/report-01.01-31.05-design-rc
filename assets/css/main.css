@@ -401,6 +401,24 @@ body {
 }
 .deck-footer img { height: 24px; opacity: 1; }
 
+.deck-logo {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  cursor: default;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.deck-logo:focus,
+.deck-logo:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.deck-logo img { pointer-events: none; }
+
 .nav-grp { display: flex; align-items: center; gap: 16px; height: 100%; }
 .nav-btn {
   width: 40px;
@@ -540,3 +558,159 @@ body {
   border-bottom-color: #f2f2f2;
 }
 .proof-muted { color: #737373; }
+
+/* ===== Projector high-contrast (logo toggle) ===== */
+.deck--hc {
+  --hc-ink: #262626;
+  --hc-muted: #525252;
+  --hc-border: #a3a3a3;
+  --hc-bg: #f5f5f5;
+}
+
+body:has(.deck--hc:not(.deck--cover)) {
+  background: var(--hc-bg);
+}
+
+.deck--hc:not(.deck--cover) {
+  background: var(--hc-bg);
+}
+
+.deck--hc:not(.deck--cover) .deck-stage {
+  background: var(--hc-bg);
+}
+
+.deck--hc:not(.deck--cover) .deck-footer {
+  background: transparent !important;
+  border-color: var(--hc-border) !important;
+  border-width: 1px !important;
+  box-shadow: none !important;
+}
+
+.deck--hc:not(.deck--cover) .nav-btn,
+.deck--hc:not(.deck--cover) .cover-btn {
+  background: transparent !important;
+  border-color: var(--hc-border) !important;
+  border-width: 1px !important;
+  box-shadow: none !important;
+}
+
+.deck--hc.deck--cover .deck-footer,
+.deck--hc.deck--cover .nav-btn,
+.deck--hc.deck--cover .cover-btn {
+  background: var(--hc-bg) !important;
+  border-color: var(--hc-border) !important;
+  border-width: 1px !important;
+  box-shadow: none !important;
+}
+
+.deck--hc .nav-counter,
+.deck--hc .nav-btn,
+.deck--hc .cover-btn {
+  color: var(--hc-ink) !important;
+  font-weight: 500;
+}
+
+.deck--hc .nav-btn--next,
+.deck--hc .cover-btn {
+  color: #0000bb !important;
+}
+
+.deck--hc [class*="-title"],
+.deck--hc [class*="-headline-lbl"],
+.deck--hc [class*="-chart-lbl"],
+.deck--hc [class*="-card-title"],
+.deck--hc [class*="-note-title"],
+.deck--hc [class*="-card-proj"],
+.deck--hc [class*="-lead"],
+.deck--hc [class*="-step-text"],
+.deck--hc [class*="-pipe-title"],
+.deck--hc [class*="-pipe-desc"] {
+  color: var(--hc-ink) !important;
+}
+
+.deck--hc [class*="-kpi-lbl"],
+.deck--hc [class*="-note-text"],
+.deck--hc [class*="-metric-sub"],
+.deck--hc [class*="-card-did"],
+.deck--hc [class*="-pipe-tools"],
+.deck--hc .proof-table th,
+.deck--hc .proof-muted,
+.deck--hc .proof-eq {
+  color: var(--hc-muted) !important;
+}
+
+.deck--hc [class*="-kpi-val"],
+.deck--hc [class*="-metric-val"],
+.deck--hc [class*="-num"] {
+  color: #0000bb !important;
+}
+
+.deck--hc .proof-sum,
+.deck--hc .tag-ok {
+  color: #2fa86a !important;
+}
+
+.deck--hc .tag-bad {
+  color: #d44a5c !important;
+}
+
+.deck--hc [class*="-card"],
+.deck--hc [class*="-kpi"],
+.deck--hc [class*="-note"],
+.deck--hc [class*="-pipe-card"] {
+  background: var(--hc-bg) !important;
+  border-color: var(--hc-border) !important;
+  border-width: 1px !important;
+  box-shadow: none !important;
+}
+
+.deck--hc .proof-table td,
+.deck--hc .proof-table th {
+  border-bottom-color: #d4d4d4 !important;
+}
+
+.deck--hc .ai-card-effect,
+.deck--hc .ai-tool {
+  background: var(--hc-bg) !important;
+  border-color: var(--hc-border) !important;
+  color: var(--hc-muted) !important;
+}
+
+.deck--hc.deck--cover .cv-title {
+  color: #ffffff !important;
+}
+
+.deck--hc.deck--cover .cv-sub {
+  color: #e8e8e8 !important;
+}
+
+.deck--hc .ap-pixels-img {
+  opacity: 0.85;
+  filter: none;
+}
+
+.deck--hc .deck-dialog.p-dialog {
+  background: var(--hc-bg) !important;
+  border: 1px solid var(--hc-border) !important;
+  box-shadow: none !important;
+}
+
+.deck--hc .deck-dialog .p-dialog-header,
+.deck--hc .deck-dialog .p-dialog-content {
+  background: var(--hc-bg) !important;
+}
+
+.deck--hc .deck-dialog .p-dialog-title,
+.deck--hc .proof-table--dialog td {
+  color: var(--hc-ink) !important;
+  font-weight: 500;
+}
+
+.deck--hc .proof-table--dialog th {
+  color: var(--hc-muted) !important;
+  border-bottom-color: #d4d4d4 !important;
+}
+
+.deck--hc .proof-table--dialog td {
+  border-bottom-color: #d4d4d4 !important;
+}

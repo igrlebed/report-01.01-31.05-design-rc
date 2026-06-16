@@ -3,6 +3,7 @@
 // Заменить на GET /api/v1/tracker-report при появлении бэкенда.
 import slides from '~/mocks/slides.json'
 
+const { hiContrast, toggleHiContrast } = useHiContrast()
 const current = ref(0)
 const totalSlides = 7
 const contentSlides = 6
@@ -19,7 +20,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <div class="deck" :class="{ 'deck--cover': current === 0 }">
+  <div class="deck" :class="{ 'deck--cover': current === 0, 'deck--hc': hiContrast }">
     <div class="deck-stage">
       <SlidesSlideCover v-if="current === 0" />
       <SlidesSlideOverview v-else-if="current === 1" :data="slides" />
@@ -31,7 +32,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     </div>
 
     <footer class="deck-footer">
-      <img src="/img/logo.svg" alt="logo" />
+      <button type="button" class="deck-logo" @click="toggleHiContrast">
+        <img src="/img/logo.svg" alt="" />
+      </button>
       <div v-if="current === 0" class="nav-grp">
         <button class="cover-btn" aria-label="Просмотр" @click="go(1)">
           <span>Просмотр</span>

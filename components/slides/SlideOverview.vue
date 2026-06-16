@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import Dialog from 'primevue/dialog'
-import { BRAND, OK, BAD, baseTooltip, baseTextStyle, chartLegend, chartValueAxis, chartCategoryAxis, chartCategoryAxisLabel, chartBarLabel, BAR_R, ttHint } from '~/composables/useBrand'
+import { useChartTheme, BAR_R } from '~/composables/useBrand'
 
 const props = defineProps<{ data: any }>()
+const theme = useChartTheme()
 
 const drillVisible = ref(false)
 const drillProject = ref<any>(null)
@@ -13,10 +14,12 @@ const kpi = computed(() => props.data.kpi)
 const SEGMENT_DUR = 500
 const BAR_STAGGER = 80
 
-const deadlineOption = computed(() => ({
-  textStyle: baseTextStyle,
+const deadlineOption = computed(() => {
+  const t = theme.value
+  return {
+  textStyle: t.textStyle,
   tooltip: {
-    ...baseTooltip,
+    ...t.tooltip,
     trigger: 'axis',
     axisPointer: { type: 'shadow' },
     formatter: (p: any[]) => {
@@ -25,27 +28,27 @@ const deadlineOption = computed(() => ({
       const rows = p
         .map((i) => `${i.marker} ${i.seriesName}: ${i.value}`)
         .join('<br/>')
-      return `${p[0].axisValue}<br/>${rows}<br/>${ttHint(
+      return `${p[0].axisValue}<br/>${rows}<br/>${t.ttHint(
         `в срок ${Math.round((ot / total) * 100)}% · клик → задачи`
       )}`
     }
   },
-  legend: chartLegend,
+  legend: t.legend,
   grid: { left: 8, right: 16, top: 16, bottom: 38, containLabel: true },
   xAxis: {
     type: 'category',
     data: deadlines.value.map((d: any) => d.project),
-    ...chartCategoryAxis,
-    axisLabel: { ...chartCategoryAxisLabel, interval: 0 }
+    ...t.categoryAxis,
+    axisLabel: { ...t.categoryAxisLabel, interval: 0 }
   },
-  yAxis: { type: 'value', ...chartValueAxis },
+  yAxis: { type: 'value', ...t.valueAxis },
   series: [
     {
       name: 'В срок',
       type: 'bar',
       stack: 't',
       data: deadlines.value.map((d: any) => d.onTime),
-      itemStyle: { color: OK, borderRadius: BAR_R.stackBottom },
+      itemStyle: { color: t.ok, borderRadius: BAR_R.stackBottom },
       barWidth: '52%',
       animationDuration: SEGMENT_DUR,
       animationEasing: 'cubicOut',
@@ -57,25 +60,27 @@ const deadlineOption = computed(() => ({
       type: 'bar',
       stack: 't',
       data: deadlines.value.map((d: any) => d.late),
-      itemStyle: { color: BAD, borderRadius: BAR_R.stackTop },
+      itemStyle: { color: t.bad, borderRadius: BAR_R.stackTop },
       animationDuration: SEGMENT_DUR,
       animationEasing: 'cubicOut',
       animationDelay: (idx: number) => SEGMENT_DUR + idx * BAR_STAGGER,
       emphasis: { focus: 'series' }
     }
   ]
-}))
+}})
 
-const throughputOption = computed(() => ({
-  textStyle: baseTextStyle,
-  tooltip: { ...baseTooltip, trigger: 'axis' },
+const throughputOption = computed(() => {
+  const th = theme.value
+  return {
+  textStyle: th.textStyle,
+  tooltip: { ...th.tooltip, trigger: 'axis' },
   grid: { left: 8, right: 18, top: 24, bottom: 28, containLabel: true },
   xAxis: {
     type: 'category',
-    data: props.data.throughput.map((t: any) => t.month),
-    ...chartCategoryAxis
+    data: props.data.throughput.map((m: any) => m.month),
+    ...th.categoryAxis
   },
-  yAxis: { type: 'value', ...chartValueAxis },
+  yAxis: { type: 'value', ...th.valueAxis },
   series: [
     {
       name: 'Закрыто задач',
@@ -83,23 +88,23 @@ const throughputOption = computed(() => ({
       smooth: true,
       symbol: 'circle',
       symbolSize: 6,
-      data: props.data.throughput.map((t: any) => t.count),
-      lineStyle: { width: 2, color: BRAND },
-      itemStyle: { color: BRAND, borderWidth: 0 },
+      data: props.data.throughput.map((m: any) => m.count),
+      lineStyle: { width: th.brand === '#0000bb' ? 3 : 2, color: th.brand },
+      itemStyle: { color: th.brand, borderWidth: 0 },
       areaStyle: {
         color: {
           type: 'linear',
           x: 0, y: 0, x2: 0, y2: 1,
           colorStops: [
-            { offset: 0, color: 'rgba(0,113,227,0.12)' },
+            { offset: 0, color: th.brand === '#0000bb' ? 'rgba(0,0,187,0.2)' : 'rgba(0,113,227,0.12)' },
             { offset: 1, color: 'rgba(0,113,227,0)' }
           ]
         }
       },
-      label: { show: true, position: 'top', color: BRAND, ...chartBarLabel }
+      label: { show: true, position: 'top', color: th.brand, ...th.barLabel }
     }
   ]
-}))
+}})
 
 function onDeadlineClick(params: any) {
   const proj = deadlines.value[params.dataIndex]

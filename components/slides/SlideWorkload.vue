@@ -1,33 +1,36 @@
 <script setup lang="ts">
-import { BRAND, BRAND_SOFT, CHART_MUTED, baseTooltip, baseTextStyle, chartLegend, chartValueAxis, chartCategoryAxis, chartBarLabel, BAR_R, ttHint, ttDivider } from '~/composables/useBrand'
+import { useChartTheme, BAR_R } from '~/composables/useBrand'
 
 const props = defineProps<{ data: any }>()
+const theme = useChartTheme()
 
 const workload = computed(() => [...props.data.workload].sort((a, b) => a.total - b.total))
 
 const SEGMENT_DUR = 500
 const ROW_STAGGER = 80
 
-const option = computed(() => ({
-  textStyle: baseTextStyle,
+const option = computed(() => {
+  const t = theme.value
+  return {
+  textStyle: t.textStyle,
   tooltip: {
-    ...baseTooltip,
+    ...t.tooltip,
     trigger: 'item',
     formatter: (p: any) => {
       const w = workload.value[p.dataIndex]
       const parts = w.byProject
         .map((b: any) => `${b.project}: ${b.hours} ч`)
         .join('<br/>')
-      return `${w.full} — всего ${w.total} ч<br/>${ttHint(`${p.seriesName}: ${p.value} ч`)}${ttDivider()}${parts}`
+      return `${w.full} — всего ${w.total} ч<br/>${t.ttHint(`${p.seriesName}: ${p.value} ч`)}${t.ttDivider()}${parts}`
     }
   },
-  legend: chartLegend,
+  legend: t.legend,
   grid: { left: 8, right: 40, top: 12, bottom: 38, containLabel: true },
-  xAxis: { type: 'value', ...chartValueAxis, axisLabel: { ...chartValueAxis.axisLabel, formatter: '{value} ч' } },
+  xAxis: { type: 'value', ...t.valueAxis, axisLabel: { ...t.valueAxis.axisLabel, formatter: '{value} ч' } },
   yAxis: {
     type: 'category',
     data: workload.value.map((w) => w.name),
-    ...chartCategoryAxis
+    ...t.categoryAxis
   },
   series: [
     {
@@ -35,7 +38,7 @@ const option = computed(() => ({
       type: 'bar',
       stack: 'h',
       data: workload.value.map((w) => w.janFeb),
-      itemStyle: { color: BRAND_SOFT, borderRadius: BAR_R.horizStackStart },
+      itemStyle: { color: t.brandSoft, borderRadius: BAR_R.horizStackStart },
       animationDuration: SEGMENT_DUR,
       animationEasing: 'cubicOut',
       animationDelay: (idx: number) => idx * ROW_STAGGER,
@@ -46,7 +49,7 @@ const option = computed(() => ({
       type: 'bar',
       stack: 'h',
       data: workload.value.map((w) => w.marMay),
-      itemStyle: { color: BRAND, borderRadius: BAR_R.horizStackEnd },
+      itemStyle: { color: t.brand, borderRadius: BAR_R.horizStackEnd },
       animationDuration: SEGMENT_DUR,
       animationEasing: 'cubicOut',
       animationDelay: (idx: number) => SEGMENT_DUR + idx * ROW_STAGGER,
@@ -54,13 +57,13 @@ const option = computed(() => ({
         show: true,
         position: 'right',
         formatter: (p: any) => `${workload.value[p.dataIndex].total} ч`,
-        color: CHART_MUTED,
-        ...chartBarLabel
+        color: t.chartMuted,
+        ...t.barLabel
       },
       emphasis: { focus: 'series' }
     }
   ]
-}))
+}})
 </script>
 
 <template>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { BRAND, NEUTRAL, baseTooltip, baseTextStyle, chartLegend, chartValueAxis, chartCategoryAxis, chartCategoryAxisLabel, chartBarLabel, BAR_R } from '~/composables/useBrand'
+import { useChartTheme, BAR_R } from '~/composables/useBrand'
 
 const props = defineProps<{ data: any }>()
+const theme = useChartTheme()
 const ai = computed(() => props.data.ai)
 
 const unit = ref<'hours' | 'ratio'>('hours')
@@ -9,38 +10,39 @@ const unit = ref<'hours' | 'ratio'>('hours')
 const cases = computed(() => [...ai.value.timeSaved])
 
 const option = computed(() => {
+  const t = theme.value
   const c = cases.value
   if (unit.value === 'ratio') {
     return {
-      textStyle: baseTextStyle,
+      textStyle: t.textStyle,
       tooltip: {
-        ...baseTooltip,
+        ...t.tooltip,
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
         formatter: (p: any[]) => `${p[0].axisValue}<br/>ускорение ×${p[0].value}`
       },
       grid: { left: 8, right: 56, top: 10, bottom: 10, containLabel: true },
-      xAxis: { type: 'value', ...chartValueAxis, axisLabel: { ...chartValueAxis.axisLabel, formatter: '×{value}' } },
+      xAxis: { type: 'value', ...t.valueAxis, axisLabel: { ...t.valueAxis.axisLabel, formatter: '×{value}' } },
       yAxis: {
         type: 'category',
         data: c.map((x) => x.case),
-        ...chartCategoryAxis
+        ...t.categoryAxis
       },
       series: [
         {
           type: 'bar',
           data: c.map((x) => x.ratio),
-          itemStyle: { color: BRAND, borderRadius: BAR_R.horizEnd },
+          itemStyle: { color: t.brand, borderRadius: BAR_R.horizEnd },
           barWidth: '52%',
-          label: { show: true, position: 'right', formatter: '×{c}', color: BRAND, ...chartBarLabel }
+          label: { show: true, position: 'right', formatter: '×{c}', color: t.brand, ...t.barLabel }
         }
       ]
     }
   }
   return {
-    textStyle: baseTextStyle,
+    textStyle: t.textStyle,
     tooltip: {
-      ...baseTooltip,
+      ...t.tooltip,
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       formatter: (p: any[]) =>
@@ -48,28 +50,28 @@ const option = computed(() => {
           .map((i) => `${i.marker} ${i.seriesName}: ${i.value} ч`)
           .join('<br/>')}`
     },
-    legend: chartLegend,
+    legend: t.legend,
     grid: { left: 8, right: 40, top: 12, bottom: 38, containLabel: true },
-    xAxis: { type: 'value', ...chartValueAxis, axisLabel: { ...chartValueAxis.axisLabel, formatter: '{value} ч' } },
+    xAxis: { type: 'value', ...t.valueAxis, axisLabel: { ...t.valueAxis.axisLabel, formatter: '{value} ч' } },
     yAxis: {
       type: 'category',
       data: c.map((x) => x.case),
-      ...chartCategoryAxis,
-      axisLabel: { ...chartCategoryAxisLabel, width: 150, overflow: 'break' }
+      ...t.categoryAxis,
+      axisLabel: { ...t.categoryAxisLabel, width: 150, overflow: 'break' }
     },
     series: [
       {
         name: 'Традиционно',
         type: 'bar',
         data: c.map((x) => x.traditional),
-        itemStyle: { color: NEUTRAL, borderRadius: BAR_R.horizGrouped },
+        itemStyle: { color: t.neutral, borderRadius: BAR_R.horizGrouped },
         barGap: '10%'
       },
       {
         name: 'С ИИ',
         type: 'bar',
         data: c.map((x) => x.ai),
-        itemStyle: { color: BRAND, borderRadius: BAR_R.horizGrouped }
+        itemStyle: { color: t.brand, borderRadius: BAR_R.horizGrouped }
       }
     ]
   }
