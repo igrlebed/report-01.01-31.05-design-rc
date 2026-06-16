@@ -84,8 +84,8 @@ const option = computed(() => {
 
     <div class="ai-content">
       <div class="ai-kpis">
-        <div v-for="k in ai.kpi" :key="k.label" class="ai-kpi">
-          <div class="ai-kpi-val">{{ k.value }}</div>
+        <div v-for="(k, i) in ai.kpi" :key="k.label" class="ai-kpi">
+          <div class="ai-kpi-val"><CountUp :value="k.value" :delay="180 + i * 100" /></div>
           <div class="ai-kpi-lbl">{{ k.label }}</div>
         </div>
       </div>

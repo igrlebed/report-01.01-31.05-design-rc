@@ -56,7 +56,7 @@ const steps = computed(() => props.data.ai.roadmap as string[])
 .ap-pixels {
   position: absolute;
   top: calc(50% + 0.5px);
-  right: 0;
+  right: -15%;
   z-index: 0;
   /* Figma: 1041×979 on 1440×810 frame — wider and taller than viewport */
   height: calc(100% * 979 / 810);

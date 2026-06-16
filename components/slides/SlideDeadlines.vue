@@ -58,8 +58,14 @@ const asmip = computed(() => rows.value.find((r: any) => r.project === 'АС М�
           <div class="dl-headline">
             <p class="dl-headline-lbl">Процент задач, закрытых в срок</p>
             <div class="dl-metric">
-              <span class="dl-metric-val">{{ total.pct.toLocaleString('ru-RU') }}%</span>
-              <span class="dl-metric-sub">({{ total.onTime }} / {{ total.onTime + total.late }})</span>
+              <span class="dl-metric-val">
+                <CountUp :value="total.pct" :duration="600" :delay="80" />%
+              </span>
+              <span class="dl-metric-sub">
+                (<CountUp :value="total.onTime" :duration="600" :delay="120" />
+                /
+                <CountUp :value="total.onTime + total.late" :duration="600" :delay="160" />)
+              </span>
             </div>
           </div>
           <EChart :option="option" />

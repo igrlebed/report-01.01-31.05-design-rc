@@ -119,19 +119,19 @@ function onDeadlineClick(params: any) {
     <div class="ov-content">
       <div class="ov-kpis">
         <div class="ov-kpi">
-          <div class="ov-kpi-val">{{ kpi.onTimePct.toLocaleString('ru-RU') }}%</div>
+          <div class="ov-kpi-val"><CountUp :value="kpi.onTimePct" :duration="600" :delay="80" />%</div>
           <div class="ov-kpi-lbl">Дедлайнов в срок</div>
         </div>
         <div class="ov-kpi">
-          <div class="ov-kpi-val">{{ kpi.tasksDone }}</div>
+          <div class="ov-kpi-val"><CountUp :value="kpi.tasksDone" :duration="600" :delay="140" /></div>
           <div class="ov-kpi-lbl">Задач завершено</div>
         </div>
         <div class="ov-kpi">
-          <div class="ov-kpi-val">{{ kpi.totalSpent.toLocaleString('ru-RU') }}</div>
+          <div class="ov-kpi-val"><CountUp :value="kpi.totalSpent" :duration="600" :delay="200" /></div>
           <div class="ov-kpi-lbl">Часов трудозатрат</div>
         </div>
         <div class="ov-kpi">
-          <div class="ov-kpi-val">{{ kpi.projects }}</div>
+          <div class="ov-kpi-val"><CountUp :value="kpi.projects" :duration="600" :delay="260" /></div>
           <div class="ov-kpi-lbl">Активных проектов</div>
         </div>
       </div>
