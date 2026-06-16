@@ -8,6 +8,12 @@ const current = ref(0)
 const totalSlides = 7
 const contentSlides = 6
 
+const themeColor = computed(() => (current.value === 0 ? '#0000bb' : '#f5f5f5'))
+
+useHead({
+  meta: [{ name: 'theme-color', content: themeColor }]
+})
+
 function go(i: number) {
   current.value = Math.max(0, Math.min(totalSlides - 1, i))
 }
