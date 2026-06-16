@@ -8,24 +8,6 @@ const current = ref(0)
 const totalSlides = 7
 const contentSlides = 6
 
-const themeColor = computed(() => (current.value === 0 ? '#0000BB' : '#F5F5F5'))
-
-useSeoMeta({ themeColor })
-
-function applyThemeColor(color: string) {
-  if (!import.meta.client) return
-  let meta = document.querySelector('meta[name="theme-color"]')
-  if (!meta) {
-    meta = document.createElement('meta')
-    meta.setAttribute('name', 'theme-color')
-    document.head.appendChild(meta)
-  }
-  meta.setAttribute('content', color)
-}
-
-watch(themeColor, applyThemeColor)
-onMounted(() => applyThemeColor(themeColor.value))
-
 function go(i: number) {
   current.value = Math.max(0, Math.min(totalSlides - 1, i))
 }
