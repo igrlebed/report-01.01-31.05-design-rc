@@ -5,8 +5,8 @@ import slides from '~/mocks/slides.json'
 
 const { hiContrast, toggleHiContrast } = useHiContrast()
 const current = ref(0)
-const totalSlides = 7
-const contentSlides = 6
+const totalSlides = 8
+const contentSlides = 7
 
 function go(i: number) {
   current.value = Math.max(0, Math.min(totalSlides - 1, i))
@@ -28,6 +28,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <SlidesSlideWorkload v-else-if="current === 3" :data="slides" />
       <SlidesSlideAiNext v-else-if="current === 4" :data="slides" />
       <SlidesSlideAiNow v-else-if="current === 5" :data="slides" />
+      <SlidesSlideAiCase v-else-if="current === 6" :data="slides" />
       <SlidesSlideAiPlan v-else :data="slides" />
     </div>
 

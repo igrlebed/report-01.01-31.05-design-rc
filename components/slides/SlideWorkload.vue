@@ -97,7 +97,7 @@ const option = computed(() => {
                 <tr v-for="row in data.proof" :key="row.key">
                   <td>{{ row.key }}</td>
                   <td class="proof-eq">{{ row.parts.map((p:any[]) => p[1]).join(' + ') }} = <span class="proof-sum">{{ row.tracker }}</span></td>
-                  <td class="tag-ok">{{ row.tracker }} ч ✓</td>
+                  <td class="tag-ok">{{ row.tracker }} ч</td>
                 </tr>
               </tbody>
             </table>

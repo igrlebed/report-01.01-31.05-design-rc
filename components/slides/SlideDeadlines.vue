@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import Dialog from 'primevue/dialog'
 import { useChartTheme, BAR_R } from '~/composables/useBrand'
 
 const props = defineProps<{ data: any }>()
 const theme = useChartTheme()
 
+const drillVisible = ref(false)
+const drillProject = ref<any>(null)
+
 const rows = computed(() => props.data.deadlines.after)
+const sortedRows = computed(() => [...rows.value].sort((a, b) => a.pct - b.pct))
 const total = computed(() => props.data.deadlines.totalAfter)
 
 function barColor(pct: number, colors: { ok: string; brand: string; bad: string }) {
@@ -15,7 +20,7 @@ function barColor(pct: number, colors: { ok: string; brand: string; bad: string 
 
 const option = computed(() => {
   const t = theme.value
-  const sorted = [...rows.value].sort((a, b) => a.pct - b.pct)
+  const sorted = sortedRows.value
   return {
     textStyle: t.textStyle,
     tooltip: {
@@ -24,7 +29,7 @@ const option = computed(() => {
       axisPointer: { type: 'shadow' },
       formatter: (p: any[]) => {
         const r = sorted[p[0].dataIndex]
-        return `${r.project}<br/>в срок ${r.pct}%<br/>${t.ttHint(`${r.onTime} в срок · ${r.late} просрочено`)}`
+        return `${r.project}<br/>в срок ${r.pct}%<br/>${t.ttHint(`${r.onTime} в срок · ${r.late} просрочено · клик → задачи`)}`
       }
     },
     grid: { left: 8, right: 48, top: 10, bottom: 10, containLabel: true },
@@ -44,6 +49,14 @@ const option = computed(() => {
     ]
   }
 })
+
+function onBarClick(params: any) {
+  const proj = sortedRows.value[params.dataIndex]
+  if (proj?.lateTasks?.length) {
+    drillProject.value = proj
+    drillVisible.value = true
+  }
+}
 
 const asmip = computed(() => rows.value.find((r: any) => r.project === 'АС МИП')?.pct)
 </script>
@@ -70,15 +83,18 @@ const asmip = computed(() => rows.value.find((r: any) => r.project === 'АС М�
               </span>
             </div>
           </div>
-          <EChart :option="option" />
+          <EChart :option="option" @click="onBarClick" />
         </div>
 
         <div class="dl-notes">
-          <div class="dl-card dl-note">
+          <div class="dl-card dl-note dl-note--list">
             <h3 class="dl-note-title">Откуда просрочки?</h3>
-            <p class="dl-note-text">
-              Часть «просрочек» — это переносы сроков по низкоприоритетным задачам бэклога, у которых не было переноса дедлайна в трекере.
-            </p>
+            <ol class="dl-note-list">
+              <li>Перенос сроков по низкоприоритетным задачам бэклога</li>
+              <li>Долгое ревью — ожидание обратной связи от аналитики</li>
+              <li>Корректировки требований от заказчика</li>
+              <li>Ожидание ответов на вопросы по ТЗ</li>
+            </ol>
           </div>
           <div class="dl-card dl-note">
             <h3 class="dl-note-title">АС МИП ({{ asmip }}%)</h3>
@@ -95,6 +111,28 @@ const asmip = computed(() => rows.value.find((r: any) => r.project === 'АС М�
         </div>
       </div>
     </div>
+
+    <Dialog
+      v-model:visible="drillVisible"
+      modal
+      dismissable-mask
+      class="deck-dialog"
+      :header="`Просрочки · ${drillProject?.project}`"
+      :style="{ width: '760px' }"
+    >
+      <table class="proof-table proof-table--dialog">
+        <thead>
+          <tr><th>Задача</th><th>Просрочка</th><th>Название</th></tr>
+        </thead>
+        <tbody>
+          <tr v-for="t in drillProject?.lateTasks" :key="t.key">
+            <td>{{ t.key }}</td>
+            <td class="tag-bad">+{{ t.days }} дн</td>
+            <td class="proof-muted">{{ t.title }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </Dialog>
   </section>
 </template>
 
@@ -227,6 +265,9 @@ const asmip = computed(() => rows.value.find((r: any) => r.project === 'АС М�
   color: #02028A;
   margin: 0;
 }
+.dl-note--list {
+  gap: 12px;
+}
 .dl-note-text {
   font-family: 'Onest', sans-serif;
   font-weight: 400;
@@ -234,5 +275,20 @@ const asmip = computed(() => rows.value.find((r: any) => r.project === 'АС М�
   line-height: 20px;
   color: #737373;
   margin: 0;
+}
+.dl-note-list {
+  margin: 0;
+  padding-left: 1.15em;
+  font-family: 'Onest', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  color: #737373;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dl-note-list li {
+  padding-left: 0.15em;
 }
 </style>

@@ -156,9 +156,10 @@ function onDeadlineClick(params: any) {
     <Dialog
       v-model:visible="drillVisible"
       modal
+      dismissable-mask
       class="deck-dialog"
       :header="`Просрочки · ${drillProject?.project}`"
-      :style="{ width: '560px' }"
+      :style="{ width: '760px' }"
     >
       <table class="proof-table proof-table--dialog">
         <thead>
