@@ -17,6 +17,12 @@ const R_DEPT = 175
 const R_SPEC = 300
 const R_TASK = 450
 
+const RIGHT_LABEL_TASKS = new Set(['SEO-аудит', 'Проверка гипотез'])
+
+function isRightLabelTask(name: string) {
+  return RIGHT_LABEL_TASKS.has(name)
+}
+
 const deptColors = computed(() => (hiContrast.value ? DEPT_COLORS_HC : DEPT_COLORS))
 
 const taskCards = computed(() => {
@@ -150,9 +156,11 @@ function buildGraph(m: any, hc: boolean) {
         const x = Math.cos(a) * R_TASK
         const y = Math.sin(a) * R_TASK
         const taskId = `t-${di}-${si}-${ti}`
+        const labelRight = isRightLabelTask(tk.label)
         pushNode(taskId, x, y, {
           name: tk.label,
           value: tk.full,
+          tooltipAlign: labelRight ? 'right' : 'default',
           symbol: 'circle',
           symbolSize: 14,
           category: di,
@@ -165,7 +173,7 @@ function buildGraph(m: any, hc: boolean) {
           },
           label: {
             show: true,
-            position: 'bottom',
+            position: labelRight ? 'right' : 'bottom',
             distance: 5,
             fontSize: 11,
             lineHeight: 14,
@@ -248,6 +256,7 @@ function styledNodes(sec: number, chain: Set<string>, active: boolean) {
       id,
       x: baseX + wobble,
       y: baseY + drift,
+      opacity: nodeOpacity,
       itemStyle: { ...itemStyle, opacity: nodeOpacity },
       label: {
         ...(rest.label as Record<string, unknown>),
@@ -275,6 +284,28 @@ function styledLinks(chain: Set<string>, active: boolean) {
   })
 }
 
+function tooltipPosition(
+  point: number[],
+  params: { data?: { tooltipAlign?: string } },
+  _dom: HTMLElement,
+  _rect: unknown,
+  size: { contentSize: number[]; viewSize: number[] }
+) {
+  if (params.data?.tooltipAlign !== 'right') return undefined
+
+  const [x, y] = point
+  const [cw, ch] = size.contentSize
+  const [vw, vh] = size.viewSize
+  let left = x + 14
+  let top = y - ch / 2
+
+  if (left + cw > vw - 8) left = Math.max(8, vw - cw - 8)
+  if (top < 8) top = 8
+  if (top + ch > vh - 8) top = vh - ch - 8
+
+  return [left, top]
+}
+
 const option = computed(() => {
   const t = theme.value
   const { categories, nodes, links, edge } = graph.value
@@ -283,6 +314,7 @@ const option = computed(() => {
     textStyle: t.textStyle,
     tooltip: {
       ...t.tooltip,
+      position: tooltipPosition,
       formatter: (p: any) => {
         if (p.dataType !== 'node') return ''
         const isTask = typeof p.data?.id === 'string' && p.data.id.startsWith('t-')
@@ -312,6 +344,19 @@ const option = computed(() => {
 
 let raf = 0
 let t0 = 0
+
+function onGraphMouseOver(params: any) {
+  const id = params?.data?.id
+  if (params?.dataType === 'node' && typeof id === 'string' && id.startsWith('t-')) {
+    hoveredTaskId.value = id
+    return
+  }
+  hoveredTaskId.value = null
+}
+
+function onGraphGlobalOut() {
+  hoveredTaskId.value = null
+}
 
 function tick(now: number) {
   if (!t0) t0 = now
@@ -383,7 +428,7 @@ watch([map, hiContrast], () => {
       </aside>
 
       <div class="nx-map">
-        <EChart ref="chartRef" :option="option" />
+        <EChart ref="chartRef" :option="option" @mouseover="onGraphMouseOver" @globalout="onGraphGlobalOut" />
       </div>
     </div>
   </section>
