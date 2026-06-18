@@ -184,8 +184,8 @@ body {
 .slide-nx .nx-cards > .nx-card:nth-child(8) { animation-delay: 0.78s; }
 .slide-nx .nx-cards > .nx-card:nth-child(9) { animation-delay: 0.86s; }
 .slide-nx .nx-map {
-  animation: revRight 0.75s var(--ease-out) both;
-  animation-delay: 0.35s;
+  animation: revRight 0.45s var(--ease-out) both;
+  animation-delay: 0.12s;
 }
 
 /* --- Slide 5: AiNow — KPI pop, project cards rise, chart from right --- */

@@ -9,6 +9,11 @@ const map = computed(() => props.data.ai.map)
 const anchor = computed(() => map.value.anchor)
 const chartRef = ref<{ getInstance: () => { setOption: (o: unknown, lazy?: boolean) => void } | undefined } | null>(null)
 const hoveredTaskId = ref<string | null>(null)
+const graphReady = ref(false)
+
+/** Chart mounts while `.nx-map` is entering (see main.css) */
+const NX_MAP_CHART_DELAY_MS = 180
+const GRAPH_ANIM_MS = 720
 
 const DEPT_COLORS = ['#0000bb', '#2fa86a', '#0071e3', '#e0556a']
 const DEPT_COLORS_HC = ['#0000bb', '#1f7a4d', '#0a4a9e', '#b23a4a']
@@ -59,6 +64,13 @@ function hash01(id: string) {
   let h = 0
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0
   return (Math.abs(h) % 1000) / 1000
+}
+
+function nodeEntranceDelay(id: string) {
+  if (id === 'center') return 0
+  if (id.startsWith('d-')) return 40
+  if (id.startsWith('s-')) return 90
+  return 150 + hash01(id) * 100
 }
 
 function swayFor(id: string) {
@@ -334,8 +346,9 @@ const option = computed(() => {
         links,
         edgeSymbol: ['none', 'none'],
         lineStyle: { color: edge, opacity: 0.7, curveness: 0.05 },
-        animationDuration: 900,
+        animationDuration: 620,
         animationEasing: 'cubicOut',
+        animationDelay: (idx: number) => nodeEntranceDelay(graph.value.nodes[idx]?.id ?? ''),
         animationDurationUpdate: 0
       }
     ]
@@ -344,6 +357,8 @@ const option = computed(() => {
 
 let raf = 0
 let t0 = 0
+let revealTimer: ReturnType<typeof setTimeout> | null = null
+let animTimer: ReturnType<typeof setTimeout> | null = null
 
 function onGraphMouseOver(params: any) {
   const id = params?.data?.id
@@ -359,6 +374,7 @@ function onGraphGlobalOut() {
 }
 
 function tick(now: number) {
+  if (!graphReady.value) return
   if (!t0) t0 = now
   const sec = (now - t0) / 1000
   const inst = chartRef.value?.getInstance()
@@ -375,11 +391,26 @@ function tick(now: number) {
   raf = requestAnimationFrame(tick)
 }
 
+function scheduleGraphReveal() {
+  const reduced = import.meta.client && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const revealMs = reduced ? 0 : NX_MAP_CHART_DELAY_MS
+  const animMs = reduced ? 0 : GRAPH_ANIM_MS
+
+  revealTimer = setTimeout(() => {
+    graphReady.value = true
+    animTimer = setTimeout(() => {
+      raf = requestAnimationFrame(tick)
+    }, animMs)
+  }, revealMs)
+}
+
 onMounted(() => {
-  raf = requestAnimationFrame(tick)
+  scheduleGraphReveal()
 })
 
 onUnmounted(() => {
+  if (revealTimer) clearTimeout(revealTimer)
+  if (animTimer) clearTimeout(animTimer)
   cancelAnimationFrame(raf)
 })
 
@@ -427,8 +458,14 @@ watch([map, hiContrast], () => {
         </button>
       </aside>
 
-      <div class="nx-map">
-        <EChart ref="chartRef" :option="option" @mouseover="onGraphMouseOver" @globalout="onGraphGlobalOut" />
+      <div class="nx-map" :class="{ 'nx-map--live': graphReady }">
+        <EChart
+          v-if="graphReady"
+          ref="chartRef"
+          :option="option"
+          @mouseover="onGraphMouseOver"
+          @globalout="onGraphGlobalOut"
+        />
       </div>
     </div>
   </section>
