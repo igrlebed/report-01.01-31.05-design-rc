@@ -262,7 +262,7 @@ body {
 .slide-cs .cs-phases > .cs-phase:nth-child(2) { animation-delay: 0.9s; }
 .slide-cs .cs-phases > .cs-phase:nth-child(3) { animation-delay: 1.02s; }
 
-/* --- Slide 7: AiPlan — lead reveal, columns rise --- */
+/* --- Slide 7: AiPlan — lead reveal, model cards, rules --- */
 .slide-ap .ap-lead {
   animation: revBlur 0.8s var(--ease-out) both;
   animation-delay: 0.12s;
@@ -271,37 +271,29 @@ body {
   animation: revUp 0.6s var(--ease-out) both;
   animation-delay: 0.2s;
 }
-.slide-ap .ap-bento-cell--plan {
-  animation: revLeft 0.6s var(--ease-out) both;
-  animation-delay: 0.28s;
+.slide-ap .ap-model > .ap-bento-cell {
+  animation: revPop 0.55s var(--ease-out) both;
 }
-.slide-ap .ap-bento-cell--goal {
-  animation: revRight 0.6s var(--ease-out) both;
-  animation-delay: 0.34s;
-}
+.slide-ap .ap-model > .ap-bento-cell:nth-child(1) { animation-delay: 0.28s; }
+.slide-ap .ap-model > .ap-bento-cell:nth-child(2) { animation-delay: 0.36s; }
+.slide-ap .ap-model > .ap-bento-cell:nth-child(3) { animation-delay: 0.44s; }
 .slide-ap .ap-bento-cell--rules {
-  animation: revLeft 0.6s var(--ease-out) both;
-  animation-delay: 0.42s;
+  animation: revUp 0.65s var(--ease-out) both;
+  animation-delay: 0.5s;
 }
-.slide-ap .ap-bento-cell--metrics {
-  animation: revRight 0.6s var(--ease-out) both;
-  animation-delay: 0.48s;
-}
-.slide-ap .ap-metrics > .ap-metric {
-  animation: revPop 0.5s var(--ease-out) both;
-}
-.slide-ap .ap-metrics > .ap-metric:nth-child(1) { animation-delay: 0.48s; }
-.slide-ap .ap-metrics > .ap-metric:nth-child(2) { animation-delay: 0.56s; }
-.slide-ap .ap-metrics > .ap-metric:nth-child(3) { animation-delay: 0.64s; }
 .slide-ap .ap-principle {
   animation: revFade 0.45s ease both;
-  animation-delay: 0.7s;
+  animation-delay: 0.58s;
 }
-.slide-ap .ap-metric-kpis > .ap-metric-kpi {
+.slide-ap .ap-rules-col > .ap-item {
   animation: revUp 0.45s var(--ease-out) both;
 }
-.slide-ap .ap-metric-kpis > .ap-metric-kpi:nth-child(1) { animation-delay: 0.76s; }
-.slide-ap .ap-metric-kpis > .ap-metric-kpi:nth-child(2) { animation-delay: 0.84s; }
+.slide-ap .ap-rules-col:nth-child(1) > .ap-item:nth-child(1) { animation-delay: 0.64s; }
+.slide-ap .ap-rules-col:nth-child(1) > .ap-item:nth-child(2) { animation-delay: 0.72s; }
+.slide-ap .ap-rules-col:nth-child(2) > .ap-item:nth-child(1) { animation-delay: 0.68s; }
+.slide-ap .ap-rules-col:nth-child(2) > .ap-item:nth-child(2) { animation-delay: 0.76s; }
+.slide-ap .ap-rules-col:nth-child(3) > .ap-item:nth-child(1) { animation-delay: 0.72s; }
+.slide-ap .ap-rules-col:nth-child(3) > .ap-item:nth-child(2) { animation-delay: 0.8s; }
 
 /* --- Cover --- */
 .slide-cover .cv-pixels {
@@ -792,31 +784,25 @@ body:has(.deck--hc:not(.deck--cover)) {
   box-shadow: none !important;
 }
 
-.deck--hc .ap-metric {
-  border-right-color: var(--hc-border) !important;
+.deck--hc .ap-rules-col:not(:last-child)::after {
+  background: var(--hc-border) !important;
 }
 
 .deck--hc .ap-bento-title,
-.deck--hc .ap-metric-title,
 .deck--hc .ap-item-num,
 .deck--hc .ap-lead {
   color: var(--hc-brand) !important;
 }
 
+.deck--hc .ap-subtitle,
+.deck--hc .ap-item-desc,
+.deck--hc .ap-metric-risk,
 .deck--hc .ap-principle {
   color: var(--hc-muted) !important;
 }
 
-.deck--hc .ap-subtitle,
-.deck--hc .ap-item-desc,
-.deck--hc .ap-kpi-desc,
-.deck--hc .ap-stage-ai {
-  color: var(--hc-muted) !important;
-}
-
 .deck--hc .ap-item-title,
-.deck--hc .ap-kpi-label,
-.deck--hc .ap-stage-name {
+.deck--hc .ap-metric-desc {
   color: var(--hc-ink) !important;
 }
 
