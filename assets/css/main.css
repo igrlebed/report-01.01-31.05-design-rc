@@ -262,26 +262,46 @@ body {
 .slide-cs .cs-phases > .cs-phase:nth-child(2) { animation-delay: 0.9s; }
 .slide-cs .cs-phases > .cs-phase:nth-child(3) { animation-delay: 1.02s; }
 
-/* --- Slide 7: AiPlan — lead reveal, steps cascade from left, graphic fades --- */
+/* --- Slide 7: AiPlan — lead reveal, columns rise --- */
 .slide-ap .ap-lead {
   animation: revBlur 0.8s var(--ease-out) both;
   animation-delay: 0.12s;
 }
-.slide-ap .ap-step-row {
+.slide-ap .ap-subtitle {
+  animation: revUp 0.6s var(--ease-out) both;
+  animation-delay: 0.2s;
+}
+.slide-ap .ap-bento-cell--plan {
   animation: revLeft 0.6s var(--ease-out) both;
+  animation-delay: 0.28s;
 }
-.slide-ap .ap-map > *:nth-child(1) { animation-delay: 0.3s; }
-.slide-ap .ap-map > *:nth-child(3) { animation-delay: 0.45s; }
-.slide-ap .ap-map > *:nth-child(5) { animation-delay: 0.6s; }
-.slide-ap .ap-step-line {
-  animation: revFade 0.5s ease both;
+.slide-ap .ap-bento-cell--goal {
+  animation: revRight 0.6s var(--ease-out) both;
+  animation-delay: 0.34s;
 }
-.slide-ap .ap-map > *:nth-child(2) { animation-delay: 0.4s; }
-.slide-ap .ap-map > *:nth-child(4) { animation-delay: 0.55s; }
-.slide-ap .ap-pixels {
-  animation: revFade 1s ease both;
-  animation-delay: 0.25s;
+.slide-ap .ap-bento-cell--rules {
+  animation: revLeft 0.6s var(--ease-out) both;
+  animation-delay: 0.42s;
 }
+.slide-ap .ap-bento-cell--metrics {
+  animation: revRight 0.6s var(--ease-out) both;
+  animation-delay: 0.48s;
+}
+.slide-ap .ap-metrics > .ap-metric {
+  animation: revPop 0.5s var(--ease-out) both;
+}
+.slide-ap .ap-metrics > .ap-metric:nth-child(1) { animation-delay: 0.48s; }
+.slide-ap .ap-metrics > .ap-metric:nth-child(2) { animation-delay: 0.56s; }
+.slide-ap .ap-metrics > .ap-metric:nth-child(3) { animation-delay: 0.64s; }
+.slide-ap .ap-principle {
+  animation: revFade 0.45s ease both;
+  animation-delay: 0.7s;
+}
+.slide-ap .ap-metric-kpis > .ap-metric-kpi {
+  animation: revUp 0.45s var(--ease-out) both;
+}
+.slide-ap .ap-metric-kpis > .ap-metric-kpi:nth-child(1) { animation-delay: 0.76s; }
+.slide-ap .ap-metric-kpis > .ap-metric-kpi:nth-child(2) { animation-delay: 0.84s; }
 
 /* --- Cover --- */
 .slide-cover .cv-pixels {
@@ -340,7 +360,11 @@ body {
   .slide .cs-seg,
   .slide .cs-seg-time,
   .slide .cs-phase,
-  .slide .ap-pixels,
+  .slide .ap-subtitle,
+  .slide .ap-bento-cell,
+  .slide .ap-metric,
+  .slide .ap-principle,
+  .slide .ap-metric-kpi,
   .slide-cover .cv-pixels,
   .slide-cover .cv-title,
   .slide-cover .cv-sub {
@@ -762,9 +786,38 @@ body:has(.deck--hc:not(.deck--cover)) {
   color: #e8e8e8 !important;
 }
 
-.deck--hc .ap-pixels-img {
-  opacity: 0.85;
-  filter: none;
+.deck--hc .ap-bento-cell {
+  background: var(--hc-bg) !important;
+  border-color: var(--hc-border) !important;
+  box-shadow: none !important;
+}
+
+.deck--hc .ap-metric {
+  border-right-color: var(--hc-border) !important;
+}
+
+.deck--hc .ap-bento-title,
+.deck--hc .ap-metric-title,
+.deck--hc .ap-item-num,
+.deck--hc .ap-lead {
+  color: var(--hc-brand) !important;
+}
+
+.deck--hc .ap-principle {
+  color: var(--hc-muted) !important;
+}
+
+.deck--hc .ap-subtitle,
+.deck--hc .ap-item-desc,
+.deck--hc .ap-kpi-desc,
+.deck--hc .ap-stage-ai {
+  color: var(--hc-muted) !important;
+}
+
+.deck--hc .ap-item-title,
+.deck--hc .ap-kpi-label,
+.deck--hc .ap-stage-name {
+  color: var(--hc-ink) !important;
 }
 
 .deck--hc .deck-dialog.p-dialog {
